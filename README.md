@@ -20,7 +20,7 @@ This repository contains demos and documentation for [HARK](https://github.com/e
    **On Windows:**
 
    Run `binder/postBuild.bat`
-
+# small change here, to test and learn
 4. Run `jupyter notebook` from the `DemARK` root folder. You will be prompted to open a page in your web browser. From there, you will be able to run the notebooks.
 5. Run the notebook by clicking the `▶▶` button or choosing `Kernel → Restart & Run All`
 
