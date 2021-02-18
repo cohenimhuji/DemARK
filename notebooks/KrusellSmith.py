@@ -380,7 +380,7 @@ KSEconomy.makeAggShkHist() # Make a simulated history of the economy
 
 # Set tolerance level. 
 
-KSEconomy.tolerance = 0.001
+KSEconomy.tolerance = 0.01
 
 # Solve macro problem by finding a fixed point for beliefs
 

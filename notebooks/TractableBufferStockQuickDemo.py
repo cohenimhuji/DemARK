@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.1.3
+#       jupytext_version: 1.2.1
 #   kernel_info:
 #     name: python3
 #   kernelspec:
@@ -67,156 +67,8 @@ TBS_dictionary =  {'UnempPrb' : .00625,    # Probability of becoming unemployed
                    'DiscFac' : 0.975,      # Intertemporal discount factor
                    'Rfree' : 1.01,         # Risk-free interest factor on assets
                    'PermGroFac' : 1.0025,  # Permanent income growth factor (uncompensated)
-                   'CRRA' : 2.5}           # Coefficient of relative risk aversion
+                   'CRRA' : 1.5}           # Coefficient of relative risk aversion
 MyTBStype = TractableConsumerType(**TBS_dictionary)
-
-
-# %% {"code_folding": [0]}
-# Define a function that plots the employed consumption function and sustainable consumption function 
-# for given parameter values
-
-def makeTBSplot(DiscFac,CRRA,Rfree,PermGroFac,UnempPrb,mMax,mMin,cMin,cMax,plot_emp,plot_ret,plot_mSS,show_targ):
-    MyTBStype.DiscFac = DiscFac
-    MyTBStype.CRRA = CRRA
-    MyTBStype.PermGroFac = PermGroFac
-    MyTBStype.UnempPrb = UnempPrb
-    
-    try:
-        MyTBStype.solve()
-    except:
-        print('Those parameter values violate a condition required for solution!')    
-    
-    plt.xlabel('Market resources $M_t$')
-    plt.ylabel('Consumption $C_t$')
-    plt.ylim([cMin,cMax])
-    plt.xlim([mMin,mMax])
-    
-    m = np.linspace(mMin,mMax,num=100,endpoint=True)
-    if plot_emp:
-        c = MyTBStype.solution[0].cFunc(m)
-        c[m==0.] = 0.
-        plt.plot(m,c,'-b')
-        
-    if plot_mSS:
-        plt.plot([mMin,mMax],[(MyTBStype.PermGroFacCmp/MyTBStype.Rfree + mMin*(1.0-MyTBStype.PermGroFacCmp/MyTBStype.Rfree)),(MyTBStype.PermGroFacCmp/MyTBStype.Rfree + mMax*(1.0-MyTBStype.PermGroFacCmp/MyTBStype.Rfree))],'--k')
-        
-    if plot_ret:
-        c = MyTBStype.solution[0].cFunc_U(m)
-        plt.plot(m,c,'-g')
-    
-    if show_targ:
-        mTarg = MyTBStype.mTarg
-        cTarg = MyTBStype.cTarg
-        targ_label = '$m^* =$' + mystr(mTarg) + '\n$c^* =$' + mystr(cTarg)
-        plt.annotate(targ_label,xy=(0.0,0.0),xytext=(0.8,0.05),textcoords='axes fraction')
-    
-    plt.show()
-    return None
-
-# Define widgets to control various aspects of the plot
-
-# Define a slider for the discount factor
-DiscFac_widget = widgets.FloatSlider(
-    min=0.9,
-    max=0.99,
-    step=0.0002,
-    value=0.95,
-    continuous_update=False,
-    readout_format='.4f',
-    description='$\\beta$')
-
-# Define a slider for relative risk aversion
-CRRA_widget = widgets.FloatSlider(
-    min=0.1,
-    max=8.0,
-    step=0.01,
-    value=2.5,
-    continuous_update=False,
-    readout_format='.2f',
-    description='$\\rho$')
-
-# Define a slider for permanent income growth
-PermGroFac_widget = widgets.FloatSlider(
-    min=0.9,
-    max=1.1,
-    step=0.0002,
-    value=1.0025,
-    continuous_update=False,
-    readout_format='.4f',
-    description='$\\Gamma$')
-
-# Define a slider for unemployment (or retirement) probability
-UnempPrb_widget = widgets.FloatSlider(
-    min=0.00001,
-    max=0.10,
-    step=0.00001,
-    value=0.00625,
-    continuous_update=False,
-    readout_format='.5f',
-    description='$\\mho$')
-
-# Define a slider for unemployment (or retirement) probability
-Rfree_widget = widgets.FloatSlider(
-    min=1.0,
-    max=1.1,
-    step=0.0001,
-    value=1.01,
-    continuous_update=False,
-    readout_format='.4f',
-    description='$R$')
-
-# Define a text box for the lower bound of M_t
-mMin_widget = widgets.FloatText(
-    value=0.0,
-    step=0.1,
-    description='$M$ min',
-    disabled=False)
-
-# Define a text box for the upper bound of M_t
-mMax_widget = widgets.FloatText(
-    value=50.0,
-    step=0.1,
-    description='$M$ max',
-    disabled=False)
-
-# Define a text box for the lower bound of C_t
-cMin_widget = widgets.FloatText(
-    value=0.0,
-    step=0.1,
-    description='$C$ min',
-    disabled=False)
-
-# Define a text box for the upper bound of C_t
-cMax_widget = widgets.FloatText(
-    value=1.5,
-    step=0.1,
-    description='$C$ max',
-    disabled=False)
-
-# Define a check box for whether to plot the employed consumption function
-plot_emp_widget = widgets.Checkbox(
-    value=True,
-    description='Plot employed $C$ function',
-    disabled=False)
-
-# Define a check box for whether to plot the retired consumption function
-plot_ret_widget = widgets.Checkbox(
-    value=True,
-    description='Plot retired $C$ function',
-    disabled=False)
-
-# Define a check box for whether to plot the sustainable consumption line
-plot_mSS_widget = widgets.Checkbox(
-    value=True,
-    description='Plot sustainable $C$ line',
-    disabled=False)
-
-# Define a check box for whether to show the target annotation
-show_targ_widget = widgets.Checkbox(
-    value=True,
-    description = 'Show target $(M,C)$',
-    disabled = False)
-
 
 # %% [markdown]
 # ## Target Wealth
@@ -227,6 +79,9 @@ show_targ_widget = widgets.Checkbox(
 #  \left(\frac{(R \beta (1-\mho))^{1/\rho}}{\Gamma}\right)  <  1
 # \end{equation}
 #
+
+# %% [markdown]
+# ### IMPORTENT: To activate: jupyter-js-widgets/extension in the nbextensions
 
 # %% {"code_folding": []}
 # Make an interactive plot of the tractable buffer stock solution
